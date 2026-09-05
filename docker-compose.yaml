@@ -112,8 +112,6 @@ services:
     volumes:
       - postiz-config:/config/
       - postiz-uploads:/uploads/
-    ports:
-      - "4007:5000"
     networks:
       - postiz-network
       - temporal-network
@@ -284,7 +282,7 @@ services:
     networks:
       - temporal-network
     ports:
-      - '127.0.0.1:8080:8080'
+      - '127.0.0.1:19080:8080'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
       interval: 30s
