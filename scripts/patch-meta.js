@@ -13,7 +13,7 @@ const EXTRA_HEAD = [
   '{rel:"manifest",href:"/site.webmanifest"}',
   '{rel:"apple-touch-icon",href:"/apple-touch-icon.png"}',
   '{name:"theme-color",content:"#0a0a0a"}',
-  '{property:"og:title",content:"BigWorks Social"}',
+  '{property:"og:title",content:"Postiz - BigWorks"}',
   `{property:"og:image",content:"${SITE_URL}/og-image.png"}`,
   '{property:"og:type",content:"website"}',
   `{property:"og:url",content:"${SITE_URL}"}`,
@@ -72,10 +72,16 @@ function patchHeadBlock(content) {
 function patchTitles(content) {
   let s = content;
   const replacements = [
-    ['Postiz Register', 'BigWorks Social'],
-    ['Postiz - Agent', 'BigWorks Social'],
-    ['title:"Postiz', 'title:"BigWorks Social'],
-    ['children:"Postiz Register"', 'children:"BigWorks Social"'],
+    ['Postiz Register', 'Postiz - BigWorks'],
+    ['Postiz Calendar', 'Postiz - BigWorks'],
+    ['Postiz Integrations', 'Postiz - BigWorks'],
+    ['Postiz Analytics', 'Postiz - BigWorks'],
+    ['Postiz Media', 'Postiz - BigWorks'],
+    ['Postiz Settings', 'Postiz - BigWorks'],
+    ['Postiz - Agent', 'Postiz - BigWorks'],
+    ['title:"Postiz', 'title:"Postiz - BigWorks'],
+    ['children:"Postiz Register"', 'children:"Postiz - BigWorks"'],
+    ['children:"Postiz Calendar"', 'children:"Postiz - BigWorks"'],
   ];
   let total = 0;
   for (const [from, to] of replacements) {
@@ -121,7 +127,7 @@ for (const file of files) {
 let titleFiles = 0;
 try {
   const out = execSync(
-    `grep -rl 'Postiz Register\\|Postiz - Agent\\|children:"Postiz' '${ROOT}' --include='*.js' 2>/dev/null || true`,
+    `grep -rl 'Postiz Register\\|Postiz Calendar\\|Postiz - Agent\\|children:"Postiz' '${ROOT}' --include='*.js' 2>/dev/null || true`,
     { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }
   );
   for (const file of out.trim().split('\n').filter(Boolean)) {

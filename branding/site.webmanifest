@@ -1,6 +1,6 @@
 {
-  "name": "BigWorks Social",
-  "short_name": "BigWorks",
+  "name": "Postiz - BigWorks",
+  "short_name": "Postiz",
   "description": "Agendamento de posts para redes sociais",
   "start_url": "/",
   "display": "standalone",
