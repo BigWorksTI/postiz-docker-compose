@@ -32,10 +32,10 @@ if ! grep -q "bigworks-branding-subfilter" "$NGINX_CONF"; then
             proxy_set_header Accept-Encoding "";\
             sub_filter_types text/html;\
             sub_filter_once off;\
-            sub_filter \x27<link rel="icon" href="/favicon.ico" sizes="any"/>\x27 \x27<link rel="icon" href="/favicon.ico" sizes="any"/><link rel="manifest" href="/site.webmanifest"/><link rel="apple-touch-icon" href="/apple-touch-icon.png"/><meta name="theme-color" content="#0a0a0a"/><meta property="og:title" content="Postiz - BigWorks"/><meta property="og:image" content="https://social.staging.bigworks.com.br/og-image.png"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://social.staging.bigworks.com.br/og-image.png"/>\x27;\
-            sub_filter "Postiz Register" "Postiz - BigWorks";\
-            sub_filter "Postiz Calendar" "Postiz - BigWorks";\
-            sub_filter ">Postiz<" ">Postiz - BigWorks<";\
+            sub_filter \x27<link rel="icon" href="/favicon.ico" sizes="any"/>\x27 \x27<link rel="icon" href="/favicon.ico" sizes="any"/><link rel="manifest" href="/site.webmanifest"/><link rel="apple-touch-icon" href="/apple-touch-icon.png"/><meta name="theme-color" content="#0a0a0a"/><meta property="og:title" content="BigWorks Social"/><meta property="og:image" content="https://social.staging.bigworks.com.br/og-image.png"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://social.staging.bigworks.com.br/og-image.png"/>\x27;\
+            sub_filter "Postiz Register" "BigWorks Social";\
+            sub_filter "Postiz Calendar" "BigWorks Social";\
+            sub_filter ">Postiz<" ">BigWorks Social<";\
 ' "$NGINX_CONF"
 fi
 

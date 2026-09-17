@@ -137,12 +137,12 @@ def render_page(slug: str, title: str, body_html: str) -> str:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{title} - Postiz</title>
+  <title>{title} - BigWorks Social</title>
   <style>{CSS}</style>
 </head>
 <body>
   <div class="wrap">
-    <header><a href="/">Postiz</a></header>
+    <header><a href="/">BigWorks Social</a></header>
     {body_html}
     <footer>
       <p>Content from <a href="https://postiz.com/{slug}">postiz.com/{slug}</a>.

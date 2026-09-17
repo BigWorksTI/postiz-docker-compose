@@ -71,7 +71,7 @@ function patchAuthLogo(content) {
     const exprStart = svgIdx - prefixMatch[0].length;
     const end = matchCallPair(s, exprStart);
     const alias = prefixMatch[0].match(/\(0,([a-z])\.jsxs\)/)[1];
-    const imgBlock = `(0,${alias}.jsx)("img",{src:"/bigworks-icon.png",alt:"Postiz - BigWorks",width:64,height:64,className:"block"})`;
+    const imgBlock = `(0,${alias}.jsx)("img",{src:"/bigworks-icon.png",alt:"BigWorks Social",width:64,height:64,className:"block"})`;
 
     s = s.slice(0, exprStart) + imgBlock + s.slice(end);
     total++;
@@ -106,7 +106,7 @@ function patchSidebarLogo(content) {
     const exprStart = svgIdx - prefixMatch[0].length;
     const end = matchCallPair(s, exprStart);
     const alias = prefixMatch[0].match(/\(0,([a-z])\.jsxs\)/)[1];
-    const imgBlock = `(0,${alias}.jsx)("img",{src:"/bigworks-icon.png",alt:"Postiz - BigWorks",width:60,height:60,className:"mt-[8px] min-w-[60px] min-h-[60px] block"})`;
+    const imgBlock = `(0,${alias}.jsx)("img",{src:"/bigworks-icon.png",alt:"BigWorks Social",width:60,height:60,className:"mt-[8px] min-w-[60px] min-h-[60px] block"})`;
 
     s = s.slice(0, exprStart) + imgBlock + s.slice(end);
     total++;

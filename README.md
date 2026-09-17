@@ -32,3 +32,22 @@ docker compose up
 Wait for it to load:
 
 Open your website on https://localhost:4007
+
+## BigWorks Social (white-label)
+
+A instancia em `https://social.staging.bigworks.com.br` roda como **BigWorks Social**:
+a marca Postiz nao aparece na interface. Os patches rodam na subida do container,
+encadeados no `command` do `docker-compose.override.yml` (arquivo fora do git):
+
+```
+/patch-facebook-oauth.sh && /patch-legal-pages.sh && /patch-branding.sh && node /patch-whitelabel.js && exec docker-entrypoint.sh sh -c 'nginx && pnpm run pm2'
+```
+
+- `scripts/patch-branding.sh`: icones, manifest, meta tags e logos (`patch-logo.js`, `patch-meta.js`).
+- `scripts/patch-whitelabel.js`: remove o painel de marketing da tela de login e troca
+  toda ocorrencia de "Postiz" nos bundles do Next.js por "BigWorks Social". Falha na
+  subida se o painel de login nao for encontrado (sinal de que o bundle upstream mudou).
+- `scripts/patch-legal-pages.sh`: publica `legal/terms-of-service.html` e `legal/privacy-policy.html`.
+
+Cada script precisa estar montado no container (`./scripts/<nome>:/<nome>:ro`) e o
+`NEXT_PUBLIC_POSTIZ_OAUTH_DISPLAY_NAME` deve ser `BigWorks Social`.
