@@ -108,9 +108,14 @@ if (!fs.existsSync(ROOT)) {
 let layoutPatches = 0;
 let wordPatches = 0;
 let files = 0;
+// O container reinicia (reboot da VPS, docker restart) com o bundle ja
+// patchado da primeira subida. Nesse caso o painel nao existe mais e o
+// script nao pode falhar, senao o Postiz entra em crash loop.
+let jaAplicado = false;
 
 for (const file of walk(ROOT, [])) {
   const original = fs.readFileSync(file, 'utf8');
+  if (original.includes(FORM_PANEL_TO)) jaAplicado = true;
   if (!original.includes('Postiz') && !original.includes(RIGHT_PANEL_CLASS)) continue;
 
   const layout = patchAuthLayout(original);
@@ -129,6 +134,10 @@ console.log(
 );
 
 if (layoutPatches === 0) {
-  console.error('patch-whitelabel: painel de marketing do login nao encontrado (bundle mudou?)');
-  process.exit(1);
+  if (jaAplicado) {
+    console.log('patch-whitelabel: bundle ja patchado em subida anterior, nada a fazer');
+  } else {
+    console.error('patch-whitelabel: painel de marketing do login nao encontrado (bundle mudou?)');
+    process.exit(1);
+  }
 }
