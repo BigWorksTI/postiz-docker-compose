@@ -35,7 +35,7 @@ Open your website on https://localhost:4007
 
 ## BigWorks Social (white-label)
 
-A instancia em `https://social.staging.bigworks.com.br` roda como **BigWorks Social**:
+A instancia em `https://social.bigworks.com.br` roda como **BigWorks Social**:
 a marca Postiz nao aparece na interface. Os patches rodam na subida do container,
 encadeados no `command` do `docker-compose.override.yml` (arquivo fora do git):
 

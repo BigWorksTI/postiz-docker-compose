@@ -6,7 +6,7 @@ const fs = require('fs');
 const { execSync } = require('child_process');
 
 const ROOT = '/app/apps/frontend/.next';
-const SITE_URL = 'https://social.staging.bigworks.com.br';
+const SITE_URL = 'https://social.bigworks.com.br';
 const ICON_MARKER = '{rel:"icon",href:"/favicon.ico",sizes:"any"}';
 
 const EXTRA_HEAD = [
