@@ -1,0 +1,8 @@
+[Unit]
+Description=Vigia o orchestrator do Postiz (pollers da task queue do Temporal)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/root/postiz-docker-compose/scripts/orchestrator-watchdog.sh

@@ -1,0 +1,12 @@
+[Unit]
+Description=Roda o watchdog do orchestrator do Postiz a cada 2 minutos
+
+[Timer]
+# 90s depois do boot pega o caso mais comum: o postiz subiu antes do temporal.
+OnBootSec=90s
+OnUnitActiveSec=2min
+AccuracySec=15s
+Unit=postiz-orchestrator-watchdog.service
+
+[Install]
+WantedBy=timers.target
