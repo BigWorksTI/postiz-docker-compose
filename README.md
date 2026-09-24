@@ -78,20 +78,28 @@ encerram so o wrapper `pnpm`, e o `node` filho sobrevive. Ele continua pollando
 o Temporal (o pm2 mostra `stopped` e o worker segue de pe) e segura a porta
 3002, o que joga o processo novo em crash loop com `EADDRINUSE`.
 
-Instalacao no host:
+Quem chama o watchdog a cada 2 minutos nesta VPS e o scheduler do Jarbas, pelo
+agendamento `postiz-orchestrator-watchdog` em `jarbas/config/schedules/agent3.yaml`.
+A vantagem sobre um timer do systemd e o aviso: com `--json` o script devolve
+`{severity, message}` e o Zelador manda no Telegram quando reinicia o processo
+ou quando o restart nao resolve. Silencio virou justamente o problema de
+2026-09-24.
+
+Entre dois restarts o script respeita 15 minutos, para nao entrar em loop
+quando a causa for outra (Temporal fora do ar, por exemplo).
+
+Para inspecionar sem mexer em nada:
+
+```
+scripts/orchestrator-watchdog.sh --dry-run
+```
+
+Fora desta VPS, onde nao existe o runtime Jarbas, as units em `systemd/`
+rodam o mesmo watchdog por timer, sem o aviso no Telegram:
 
 ```
 install -m 644 systemd/postiz-orchestrator-watchdog.service \
                systemd/postiz-orchestrator-watchdog.timer /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable --now postiz-orchestrator-watchdog.timer
-```
-
-O timer roda 90s depois do boot e a cada 2 minutos. Entre dois restarts ele
-respeita 15 minutos, para nao entrar em loop quando a causa for outra (Temporal
-fora do ar, por exemplo). Para inspecionar sem mexer em nada:
-
-```
-scripts/orchestrator-watchdog.sh --dry-run
-journalctl -u postiz-orchestrator-watchdog.service --since today
 ```

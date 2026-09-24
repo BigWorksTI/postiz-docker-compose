@@ -14,8 +14,11 @@
 # responde normalmente mesmo sem worker conectado. Por isso o sinal aqui e o
 # poller registrado no Temporal.
 #
-# Uso: scripts/orchestrator-watchdog.sh [--dry-run]
-# Roda no host, chamado pelo timer postiz-orchestrator-watchdog.timer.
+# Uso: scripts/orchestrator-watchdog.sh [--dry-run|--json]
+#
+# Roda no host. Com --json escreve uma linha JSON {severity,message} no lugar
+# do log, no formato que o scheduler do Jarbas manda para o Telegram; e assim
+# que o agendamento em jarbas/config/schedules/agent3.yaml chama o watchdog.
 
 set -eu
 
@@ -33,10 +36,34 @@ ESTADO="${WATCHDOG_ESTADO:-/var/lib/postiz-watchdog}"
 MARCADOR="$ESTADO/ultimo-restart"
 
 DRY_RUN=0
-[ "${1:-}" = "--dry-run" ] && DRY_RUN=1
+MODO_JSON=0
+case "${1:-}" in
+    --dry-run) DRY_RUN=1 ;;
+    --json) MODO_JSON=1 ;;
+esac
 
 log() {
+    [ "$MODO_JSON" -eq 1 ] && return 0
     echo "$(date -Is) orchestrator-watchdog: $*"
+}
+
+# Em modo JSON o stdout carrega uma linha so, que o scheduler do Jarbas le.
+# Fora dele a funcao nao imprime nada: quem informa e o log.
+fim() {
+    severidade="$1"
+    texto="$2"
+    if [ "$MODO_JSON" -eq 1 ]; then
+        JARBAS_SEV="$severidade" JARBAS_MSG="$texto" python3 -c '
+import json, os
+
+print(json.dumps({
+    "severity": os.environ["JARBAS_SEV"],
+    "message": os.environ["JARBAS_MSG"],
+    "dedupe_key": "postiz-orchestrator",
+}, ensure_ascii=False))
+'
+    fi
+    exit 0
 }
 
 rodando() {
@@ -104,31 +131,33 @@ reiniciar() {
 
 if ! rodando "$CONTAINER"; then
     log "container $CONTAINER fora do ar; nada a fazer (restart: always cuida)"
-    exit 0
+    fim critical "Postiz: container $CONTAINER fora do ar. Nenhum post agendado vai publicar."
 fi
 
 if ! rodando "$ADMIN"; then
     log "container $ADMIN fora do ar; sem como consultar a fila $FILA"
-    exit 0
+    fim warning "Postiz: container $ADMIN fora do ar, sem como conferir a fila $FILA do orchestrator."
 fi
 
 idade=$(idade_do_poller || true)
 
 if [ -n "$idade" ] && [ "$idade" -le "$IDADE_MAXIMA" ]; then
-    exit 0
+    fim ok "Postiz: orchestrator pollando a fila $FILA (ultimo acesso ha ${idade}s)."
 fi
 
 if [ -z "$idade" ]; then
     log "fila $FILA sem nenhum poller"
+    diagnostico="a fila $FILA esta sem nenhum poller"
 else
     log "poller mais recente da fila $FILA tem ${idade}s (limite ${IDADE_MAXIMA}s)"
+    diagnostico="o poller mais recente da fila $FILA tem ${idade}s (limite ${IDADE_MAXIMA}s)"
 fi
 
 if [ -f "$MARCADOR" ]; then
     desde=$(($(date +%s) - $(cat "$MARCADOR")))
     if [ "$desde" -lt "$INTERVALO_MINIMO" ]; then
         log "ultimo restart foi ha ${desde}s; aguardando ${INTERVALO_MINIMO}s entre tentativas"
-        exit 0
+        fim critical "Postiz: $diagnostico e o restart de ha ${desde}s nao resolveu. Post agendado nao publica ate alguem olhar."
     fi
 fi
 
@@ -138,3 +167,4 @@ if [ "$DRY_RUN" -eq 1 ]; then
 fi
 
 reiniciar
+fim warning "Postiz: $diagnostico, entao reiniciei o orchestrator. Os workers levam cerca de 60s para voltar."
