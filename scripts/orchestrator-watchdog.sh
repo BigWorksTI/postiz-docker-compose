@@ -32,6 +32,11 @@ IDADE_MAXIMA="${WATCHDOG_IDADE_MAXIMA:-180}"
 # Espaco minimo entre dois restarts, para nao entrar em loop se a causa for
 # outra (Temporal fora do ar, por exemplo).
 INTERVALO_MINIMO="${WATCHDOG_INTERVALO_MINIMO:-900}"
+# Depois do restart o orchestrator ainda compila os bundles antes de registrar
+# o poller (cerca de 60s). O agendamento roda a cada 2 minutos, entao sem esta
+# janela o tick seguinte a um restart bem-sucedido grita "nao resolveu" com o
+# processo subindo normalmente - foi o que aconteceu em 2026-09-28.
+GRACA="${WATCHDOG_GRACA:-150}"
 ESTADO="${WATCHDOG_ESTADO:-/var/lib/postiz-watchdog}"
 MARCADOR="$ESTADO/ultimo-restart"
 
@@ -155,6 +160,10 @@ fi
 
 if [ -f "$MARCADOR" ]; then
     desde=$(($(date +%s) - $(cat "$MARCADOR")))
+    if [ "$desde" -lt "$GRACA" ]; then
+        log "restart ha ${desde}s; dentro da janela de ${GRACA}s em que o worker ainda sobe"
+        fim ok "Postiz: orchestrator reiniciado ha ${desde}s, worker ainda subindo. Confiro no proximo tick."
+    fi
     if [ "$desde" -lt "$INTERVALO_MINIMO" ]; then
         log "ultimo restart foi ha ${desde}s; aguardando ${INTERVALO_MINIMO}s entre tentativas"
         fim critical "Postiz: $diagnostico e o restart de ha ${desde}s nao resolveu. Post agendado nao publica ate alguem olhar."
