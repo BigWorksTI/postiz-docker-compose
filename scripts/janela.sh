@@ -31,15 +31,28 @@ case "${1:-}" in
         rm -f "$DESLIGADO"
         docker compose --project-directory "$DIR" -p postiz-docker-compose up -d >/dev/null 2>&1
         t=0
-        while [ "$t" -lt "$ESPERA" ]; do
-            if saudavel && curl -s -o /dev/null -m 5 "$URL/api/public/v1/is-connected"; then
-                echo "postiz no ar (${t}s)"
-                exit 0
-            fi
+        while [ "$t" -lt "$ESPERA" ] && ! { saudavel && curl -s -o /dev/null -m 5 "$URL/api/public/v1/is-connected"; }; do
             sleep 5
             t=$((t + 5))
         done
-        echo "postiz não ficou saudável em ${ESPERA}s" >&2
+        if [ "$t" -ge "$ESPERA" ]; then
+            echo "postiz não ficou saudável em ${ESPERA}s" >&2
+            exit 1
+        fi
+        # Container healthy não basta: em 2026-09-24 e 2026-10-08 o orchestrator
+        # subiu sem worker e o post ficou em QUEUE. Só conta como no ar com o
+        # poller da fila registrado; o watchdog reinicia o processo se faltar
+        # (sem a trava de 15 min entre tentativas, que aqui atrasou o post).
+        w=0
+        while [ "$w" -lt "${JANELA_ESPERA_WORKER:-600}" ]; do
+            if WATCHDOG_INTERVALO_MINIMO=0 "$DIR/scripts/orchestrator-watchdog.sh" --json | grep -q pollando; then
+                echo "postiz no ar, worker pollando ($((t + w))s)"
+                exit 0
+            fi
+            sleep 30
+            w=$((w + 30))
+        done
+        echo "postiz no ar, mas o worker não registrou na fila em ${w}s" >&2
         exit 1
         ;;
     derrubar)
