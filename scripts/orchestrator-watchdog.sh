@@ -36,7 +36,10 @@ INTERVALO_MINIMO="${WATCHDOG_INTERVALO_MINIMO:-900}"
 # o poller (cerca de 60s). O agendamento roda a cada 2 minutos, entao sem esta
 # janela o tick seguinte a um restart bem-sucedido grita "nao resolveu" com o
 # processo subindo normalmente - foi o que aconteceu em 2026-09-28.
-GRACA="${WATCHDOG_GRACA:-150}"
+# 2026-10-08: com a Stage em ~70% de steal de CPU o worker levou 4min20s para
+# registrar (um bundle por rede, ~5s cada). Com 150s o watchdog reiniciava no
+# meio da compilacao e entrava em loop; o post das 12:00 saiu 12:11.
+GRACA="${WATCHDOG_GRACA:-420}"
 ESTADO="${WATCHDOG_ESTADO:-/var/lib/postiz-watchdog}"
 MARCADOR="$ESTADO/ultimo-restart"
 
