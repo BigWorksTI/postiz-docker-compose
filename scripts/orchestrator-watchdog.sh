@@ -134,6 +134,11 @@ reiniciar() {
     log "orchestrator reiniciado; workers levam cerca de 60s para compilar os bundles"
 }
 
+if ! rodando "$CONTAINER" && [ -f "$ESTADO/desligado" ]; then
+    log "container $CONTAINER parado de propósito (scripts/janela.sh derrubar)"
+    fim ok "Postiz desligado fora da janela de postagem."
+fi
+
 if ! rodando "$CONTAINER"; then
     log "container $CONTAINER fora do ar; nada a fazer (restart: always cuida)"
     fim critical "Postiz: container $CONTAINER fora do ar. Nenhum post agendado vai publicar."
