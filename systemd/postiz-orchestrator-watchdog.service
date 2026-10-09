@@ -5,4 +5,4 @@ Requires=docker.service
 
 [Service]
 Type=oneshot
-ExecStart=/root/postiz-docker-compose/scripts/orchestrator-watchdog.sh
+ExecStart=/opt/projects/postiz-docker-compose/scripts/orchestrator-watchdog.sh
