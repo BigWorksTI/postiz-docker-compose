@@ -1,0 +1,15 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: [self-hosted, stage-vps]
+    steps:
+      - uses: actions/checkout@v4
+      - name: validate
+        run: ./scripts/validate.sh
