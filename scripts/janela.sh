@@ -29,7 +29,18 @@ saudavel() {
 case "${1:-}" in
     subir)
         rm -f "$DESLIGADO"
-        docker compose --project-directory "$DIR" -p postiz-docker-compose up -d >/dev/null 2>&1
+        # Sem a saída do compose, uma subida que falha não deixa motivo nenhum
+        # no log de quem chamou (2026-10-09: dependência parada no meio do up).
+        if ! saida=$(docker compose --project-directory "$DIR" -p postiz-docker-compose up -d 2>&1); then
+            echo "$saida" | tail -n 5 >&2
+            exit 1
+        fi
+        # Subida a frio conta como restart para o watchdog: sem isso, a primeira
+        # checagem abaixo vê a fila sem poller e reinicia o orchestrator no meio
+        # da compilação dos bundles. Em 2026-10-09 isso jogou o worker para além
+        # de 10 min e o post das 12:00 saiu 12:09.
+        mkdir -p "$ESTADO"
+        date +%s >"$ESTADO/ultimo-restart"
         t=0
         while [ "$t" -lt "$ESPERA" ] && ! { saudavel && curl -s -o /dev/null -m 5 "$URL/api/public/v1/is-connected"; }; do
             sleep 5
@@ -44,7 +55,7 @@ case "${1:-}" in
         # poller da fila registrado; o watchdog reinicia o processo se faltar
         # (sem a trava de 15 min entre tentativas, que aqui atrasou o post).
         w=0
-        while [ "$w" -lt "${JANELA_ESPERA_WORKER:-600}" ]; do
+        while [ "$w" -lt "${JANELA_ESPERA_WORKER:-900}" ]; do
             if WATCHDOG_INTERVALO_MINIMO=0 "$DIR/scripts/orchestrator-watchdog.sh" --json | grep -q pollando; then
                 echo "postiz no ar, worker pollando ($((t + w))s)"
                 exit 0

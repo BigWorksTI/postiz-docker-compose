@@ -1,3 +1,34 @@
+# Postiz (Docker Compose)
+
+Fork BigWorks do [gitroomhq/postiz-docker-compose](https://github.com/gitroomhq/postiz-docker-compose).
+Upstream remoto: `upstream`; deploy BigWorks: `origin` (`BigWorksTI/postiz-docker-compose`).
+
+## BigWorks Stage (esta VPS)
+
+| Item | Valor |
+|------|--------|
+| Path canonico | `/opt/projects/postiz-docker-compose` |
+| URL publica | `https://social.bigworks.com.br` (Traefik na rede `traefik`) |
+| Projeto Compose | `postiz-docker-compose` (`-p postiz-docker-compose`) |
+| Janela horaria | `scripts/janela.sh subir` / `derrubar` / `status` (carrossel @prompt.do.dia) |
+
+Fora da janela o stack fica **parado de proposito** (`status` = `desligado de proposito`).
+Isso economiza CPU/RAM na Stage (Temporal + Elasticsearch + Postiz).
+
+Subir e validar worker Temporal antes de postar:
+
+```bash
+cd /opt/projects/postiz-docker-compose
+./scripts/janela.sh subir
+```
+
+Validacao local antes de commit (nao ha CI GitHub neste repo):
+
+```bash
+./scripts/validate.sh
+```
+
+Detalhe operacional: [docs/STAGE-OPS.md](docs/STAGE-OPS.md).
 
 ## Watch the Tutorial for docker-compose install:
 [https://m.youtube.com/watch?v=A6CjAmJOWvA&t=5s](https://m.youtube.com/watch?v=A6CjAmJOWvA&t=5s)
