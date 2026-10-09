@@ -5,7 +5,11 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 echo "[validate] docker compose config"
-docker compose -f docker-compose.yaml -f docker-compose.override.yml config -q
+compose_files=(-f docker-compose.yaml)
+if [[ -f docker-compose.override.yml ]]; then
+  compose_files+=(-f docker-compose.override.yml)
+fi
+docker compose "${compose_files[@]}" config -q
 
 if [ -f docker-compose.dev.yaml ]; then
   echo "[validate] docker-compose.dev.yaml"
