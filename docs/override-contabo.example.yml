@@ -1,0 +1,33 @@
+# Copie para docker-compose.override.yml (gitignored) na Contabo.
+# Landing publica no social.bigworks; app em postiz.jarbas.bigworks.com.br
+
+networks:
+  traefik:
+    external: true
+
+services:
+  social-landing:
+    image: nginx:alpine
+    restart: unless-stopped
+    volumes:
+      - ./landing:/usr/share/nginx/html:ro
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.social-landing.rule=Host(`social.bigworks.com.br`)"
+      - "traefik.http.routers.social-landing.entrypoints=websecure"
+      - "traefik.http.routers.social-landing.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.social-landing.middlewares=compress-all@file"
+      - "traefik.http.services.social-landing.loadbalancer.server.port=80"
+      - "traefik.docker.network=traefik"
+
+  postiz:
+    environment:
+      MAIN_URL: "https://postiz.jarbas.bigworks.com.br"
+      FRONTEND_URL: "https://postiz.jarbas.bigworks.com.br"
+      NEXT_PUBLIC_BACKEND_URL: "https://postiz.jarbas.bigworks.com.br/api"
+    labels:
+      - "traefik.http.routers.postiz.rule=Host(`postiz.jarbas.bigworks.com.br`)"
+      - "traefik.http.routers.postiz-staging.rule=Host(`social.staging.bigworks.com.br`)"
+      - "traefik.http.routers.postiz-staging.service=postiz"

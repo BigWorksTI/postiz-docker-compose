@@ -2,7 +2,7 @@
 
 ## Layout
 
-- Codigo: `/opt/projects/postiz-docker-compose` (infra em `/opt/projects`, sem symlink em `/root`).
+- Codigo: `/opt/infra/postiz-docker-compose` na Contabo (symlink `/opt/projects` -> `/opt/infra`).
 - Secrets: `.env` ao lado do `docker-compose.yaml` (gitignored).
 - Override local: `docker-compose.override.yml` (branding, patches, portas).
 

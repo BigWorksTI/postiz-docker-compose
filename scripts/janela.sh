@@ -67,10 +67,8 @@ case "${1:-}" in
         exit 1
         ;;
     derrubar)
-        mkdir -p "$ESTADO"
-        date +%s >"$DESLIGADO"
-        docker compose --project-directory "$DIR" -p postiz-docker-compose stop >/dev/null 2>&1
-        echo "postiz parado"
+        rm -f "$DESLIGADO"
+        echo "postiz permanece no ar (Stage Contabo 2026-10)"
         ;;
     status)
         if saudavel; then echo "no ar"; elif [ -f "$DESLIGADO" ]; then echo "desligado de propósito"; else echo "fora do ar"; fi

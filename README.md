@@ -7,13 +7,15 @@ Upstream remoto: `upstream`; deploy BigWorks: `origin` (`BigWorksTI/postiz-docke
 
 | Item | Valor |
 |------|--------|
-| Path canonico | `/opt/projects/postiz-docker-compose` |
-| URL publica | `https://social.bigworks.com.br` (Traefik na rede `traefik`) |
+| Path canonico | `/opt/infra/postiz-docker-compose` (Contabo Stage) |
+| Landing (TikTok / site publico) | `https://social.bigworks.com.br` (`landing/`, nginx) |
+| App BigWorks Social | `https://postiz.jarbas.bigworks.com.br` |
+| Staging (legado) | `https://social.staging.bigworks.com.br` (mesmo container) |
 | Projeto Compose | `postiz-docker-compose` (`-p postiz-docker-compose`) |
-| Janela horaria | `scripts/janela.sh subir` / `derrubar` / `status` (carrossel @prompt.do.dia) |
+| Stack | **sempre no ar** na Contabo; `janela.sh derrubar` e no-op |
 
-Fora da janela o stack fica **parado de proposito** (`status` = `desligado de proposito`).
-Isso economiza CPU/RAM na Stage (Temporal + Elasticsearch + Postiz).
+Na Integrator o stack parava fora da janela; na Contabo ficou ligado (PO 2026-10-10).
+`docker-compose.override.yml` (gitignored) define hosts Traefik e URLs `MAIN_URL`.
 
 Subir e validar worker Temporal antes de postar:
 
