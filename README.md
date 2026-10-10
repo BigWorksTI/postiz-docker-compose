@@ -8,9 +8,9 @@ Upstream remoto: `upstream`; deploy BigWorks: `origin` (`BigWorksTI/postiz-docke
 | Item | Valor |
 |------|--------|
 | Path canonico | `/opt/infra/postiz-docker-compose` (Contabo Stage) |
-| Landing (TikTok / site publico) | `https://social.bigworks.com.br` (`landing/`, nginx) |
-| App BigWorks Social | `https://postiz.jarbas.bigworks.com.br` |
-| Staging (legado) | `https://social.staging.bigworks.com.br` (mesmo container) |
+| App BigWorks Social | `https://social.bigworks.com.br` (login em `/auth`) |
+| Home publica (TikTok) | `https://social.bigworks.com.br/` (`landing/` via `patch-landing-home.sh`) |
+| Alias legado | `postiz.jarbas.bigworks.com.br`, `social.staging.bigworks.com.br` |
 | Projeto Compose | `postiz-docker-compose` (`-p postiz-docker-compose`) |
 | Stack | **sempre no ar** na Contabo; `janela.sh derrubar` e no-op |
 
@@ -68,7 +68,7 @@ Open your website on https://localhost:4007
 
 ## BigWorks Social (white-label)
 
-A instancia em `https://social.bigworks.com.br` roda como **BigWorks Social**:
+A instancia em `https://social.bigworks.com.br` (login `/auth`, home publica na raiz) roda como **BigWorks Social**:
 a marca Postiz nao aparece na interface. Os patches rodam na subida do container,
 encadeados no `command` do `docker-compose.override.yml` (arquivo fora do git):
 
