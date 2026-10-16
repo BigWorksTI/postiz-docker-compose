@@ -32,6 +32,15 @@ if ! grep -q "location = /terms-of-service" "$NGINX_CONF"; then
 ' "$NGINX_CONF"
 fi
 
+# URLs em PT que estao cadastradas no app da Meta (politica e termos).
+# Sem isto caem no login do Postiz e a Meta ve a politica como quebrada.
+if ! grep -q "location = /politica-privacidade" "$NGINX_CONF"; then
+  sed -i '/location = \/privacy { return 301 \/privacy-policy; }/a\
+        location = /politica-privacidade { return 301 /privacy-policy; }\
+        location = /termos-uso { return 301 /terms-of-service; }
+' "$NGINX_CONF"
+fi
+
 # Atualiza cache headers mesmo se locations ja existirem (ex.: troca max-age -> no-cache)
 sed -i 's|add_header Cache-Control "public, max-age=3600" always;|add_header Cache-Control "no-cache, no-store, must-revalidate" always;|g' "$NGINX_CONF"
 
