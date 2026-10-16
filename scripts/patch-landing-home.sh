@@ -1,5 +1,5 @@
 #!/bin/sh
-# Home publica (Prompt do dia) na raiz; login em /auth.
+# Home publica (BigWorks Social) na raiz; login em /auth.
 set -eu
 
 LANDING_SRC="/landing-src"
