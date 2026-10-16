@@ -37,9 +37,13 @@ sed -i 's|add_header Cache-Control "public, max-age=3600" always;|add_header Cac
 
 # Com DISABLE_REGISTRATION=true, /auth so mostra "Registration is disabled".
 # Quem chega pela raiz (307 -> /auth) tem que cair no formulario de login.
-if ! grep -q "location = /auth" "$NGINX_CONF"; then
+# So o /auth sem query: o retorno do OAuth (Google) passa por
+# /auth?provider=GOOGLE&code=... e, se for redirecionado, o login nunca fecha.
+# A versao antiga (`location = /auth`) pegava tudo; troca se ainda existir.
+sed -i '/location = \/auth { return 302 \/auth\/login; }/d' "$NGINX_CONF"
+if ! grep -q 'request_uri = "/auth"' "$NGINX_CONF"; then
   sed -i '/location \/uploads\//i\
-        location = /auth { return 302 /auth/login; }\
+        if ($request_uri = "/auth") { return 302 /auth/login; }\
 ' "$NGINX_CONF"
 fi
 
