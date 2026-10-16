@@ -34,4 +34,12 @@ if ! grep -q "bw-tiktok-home" "$NGINX_CONF"; then
 ' "$NGINX_CONF"
 fi
 
+# Depois do login o Postiz manda para `/`. Sem isto, quem esta logado cai na
+# landing publica em vez do painel. Com o cookie `auth`, `/` vai para /launches.
+if ! grep -q 'cookie_auth != ""' "$NGINX_CONF"; then
+  sed -i '/location = \/ {/a\
+            if ($cookie_auth != "") { return 302 /launches; }
+' "$NGINX_CONF"
+fi
+
 echo "Postiz TikTok home patch applied."
