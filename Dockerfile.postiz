@@ -1,0 +1,18 @@
+# Postiz com o Node corrigido (security release de outubro de 2026).
+#
+# A imagem oficial ainda sai com Node 22.20.0, afetado por CVE-2026-111497
+# (Brotli, RCE) e pelos bypasses de hostname no TLS. Enquanto o upstream não
+# publica imagem nova, troca só o binário do Node pela 22.23.4 da mesma linha
+# (mesma ABI, os módulos nativos continuam valendo).
+#
+# A base é a imagem que já rodava em 2026-10-02, marcada localmente como
+# bigworks/postiz-app-base:2026-10-02, para não trocar a versão do app e
+# quebrar os patches de scripts/. Quando o upstream sair com Node >= 22.23.4,
+# apague este arquivo e o bloco build: do override.
+ARG POSTIZ_BASE=bigworks/postiz-app-base:2026-10-02
+
+FROM node:22.23.4-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d AS node
+
+FROM ${POSTIZ_BASE}
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+RUN node -v | grep -qx 'v22.23.4'
