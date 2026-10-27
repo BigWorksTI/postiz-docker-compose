@@ -1,5 +1,6 @@
-# Copie para docker-compose.override.yml (gitignored) na Contabo.
+# Copie para docker-compose.override.yml (gitignored) no host do deploy.
 # App e home publica em https://social.bigworks.com.br (sem container landing separado).
+# Hostnames Traefik e segredos: ajuste no override local / Vault — nao chumbados no git.
 
 networks:
   traefik:

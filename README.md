@@ -3,19 +3,20 @@
 Fork BigWorks do [gitroomhq/postiz-docker-compose](https://github.com/gitroomhq/postiz-docker-compose).
 Upstream remoto: `upstream`; deploy BigWorks: `origin` (`BigWorksTI/postiz-docker-compose`).
 
-## BigWorks Stage (esta VPS)
+## Stage BigWorks
 
 | Item | Valor |
 |------|--------|
-| Path canonico | `/opt/infra/postiz-docker-compose` (Contabo Stage) |
+| Path canonico | `/opt/infra/postiz-docker-compose` (no host do deploy; symlink `/opt/projects` → `/opt/infra`) |
 | App BigWorks Social | `https://social.bigworks.com.br` (login em `/auth`) |
-| Home publica (TikTok) | `https://social.bigworks.com.br/` (`landing/` via `patch-landing-home.sh`) |
+| Home publica | `https://social.bigworks.com.br/` (`landing/` via `patch-landing-home.sh`; logado em `/` → `/launches`) |
 | Alias legado | `postiz.jarbas.bigworks.com.br`, `social.staging.bigworks.com.br` |
 | Projeto Compose | `postiz-docker-compose` (`-p postiz-docker-compose`) |
-| Stack | **sempre no ar** na Contabo; `janela.sh derrubar` e no-op |
+| Stack | **sempre no ar** na Stage; `janela.sh derrubar` e no-op |
 
-Na Integrator o stack parava fora da janela; na Contabo ficou ligado (PO 2026-10-10).
-`docker-compose.override.yml` (gitignored) define hosts Traefik e URLs `MAIN_URL`.
+Historico (2026-10-10): na Stage anterior o stack parava fora da janela de postagem; na Stage atual ficou ligado (PO). A Stage anterior foi cancelada em 2026-10-27 — host/IP ficam no Vault ou no override local, nao neste repo.
+
+`docker-compose.override.yml` (gitignored) define hosts Traefik, URLs `MAIN_URL` e a imagem com Node corrigido. Exemplo: [docs/override.example.yml](docs/override.example.yml).
 
 Subir e validar worker Temporal antes de postar:
 
@@ -24,11 +25,13 @@ cd /opt/projects/postiz-docker-compose
 ./scripts/janela.sh subir
 ```
 
-Validacao local antes de commit (nao ha CI GitHub neste repo):
+Validacao local antes de commit (o mesmo script roda no CI self-hosted em push/PR para `main`):
 
 ```bash
 ./scripts/validate.sh
 ```
+
+Dependabot (`.github/dependabot.yml`) abre PRs semanais de imagens Docker/compose, sem bump major automatico.
 
 Detalhe operacional: [docs/STAGE-OPS.md](docs/STAGE-OPS.md).
 
@@ -73,17 +76,23 @@ a marca Postiz nao aparece na interface. Os patches rodam na subida do container
 encadeados no `command` do `docker-compose.override.yml` (arquivo fora do git):
 
 ```
-/patch-facebook-oauth.sh && /patch-legal-pages.sh && /patch-branding.sh && node /patch-whitelabel.js && exec docker-entrypoint.sh sh -c 'nginx && pnpm run pm2'
+/patch-landing-home.sh && /patch-facebook-oauth.sh && /patch-legal-pages.sh && /patch-branding.sh && node /patch-whitelabel.js && exec docker-entrypoint.sh sh -c 'nginx && pnpm run pm2'
 ```
 
+- `scripts/patch-landing-home.sh`: home publica em `/` a partir de `landing/`; com cookie `auth`, `/` redireciona para `/launches`.
 - `scripts/patch-branding.sh`: icones, manifest, meta tags e logos (`patch-logo.js`, `patch-meta.js`).
 - `scripts/patch-whitelabel.js`: remove o painel de marketing da tela de login e troca
   toda ocorrencia de "Postiz" nos bundles do Next.js por "BigWorks Social". Falha na
   subida se o painel de login nao for encontrado (sinal de que o bundle upstream mudou).
-- `scripts/patch-legal-pages.sh`: publica `legal/terms-of-service.html` e `legal/privacy-policy.html`.
+- `scripts/patch-legal-pages.sh`: publica `legal/terms-of-service.html` e `legal/privacy-policy.html`;
+  `/termos-uso` e `/politica-privacidade` redirecionam para as paginas legais.
 
 Cada script precisa estar montado no container (`./scripts/<nome>:/<nome>:ro`) e o
 `NEXT_PUBLIC_POSTIZ_OAUTH_DISPLAY_NAME` deve ser `BigWorks Social`.
+
+Imagem do app na Stage: `Dockerfile.postiz` troca o Node da base pela 22.23.4 (security
+release de outubro de 2026) enquanto o upstream nao publica imagem nova. Ver comentario
+no Dockerfile e o bloco `build:` do override de exemplo.
 
 ## Watchdog do orchestrator
 
@@ -91,7 +100,7 @@ O container `postiz` roda tres processos no pm2: `backend`, `frontend` e
 `orchestrator`. Quem executa os workflows de publicacao e o `orchestrator`,
 pelos workers que ele registra nas task queues do Temporal.
 
-No reboot da VPS o Docker sobe todos os containers em paralelo: o
+No reboot do host o Docker sobe todos os containers em paralelo: o
 `depends_on: condition: service_healthy` do compose so vale em
 `docker compose up`, nao no restart automatico do daemon. Quando o `postiz`
 ganha a corrida do `temporal`, o orchestrator leva connection refused em
@@ -111,7 +120,7 @@ encerram so o wrapper `pnpm`, e o `node` filho sobrevive. Ele continua pollando
 o Temporal (o pm2 mostra `stopped` e o worker segue de pe) e segura a porta
 3002, o que joga o processo novo em crash loop com `EADDRINUSE`.
 
-Quem chama o watchdog a cada 2 minutos nesta VPS e o scheduler do Jarbas, pelo
+Quem chama o watchdog a cada 2 minutos na Stage e o scheduler do Jarbas, pelo
 agendamento `postiz-orchestrator-watchdog` em `jarbas/config/schedules/agent3.yaml`.
 A vantagem sobre um timer do systemd e o aviso: com `--json` o script devolve
 `{severity, message}` e o Zelador manda no Telegram quando reinicia o processo
@@ -127,7 +136,7 @@ Para inspecionar sem mexer em nada:
 scripts/orchestrator-watchdog.sh --dry-run
 ```
 
-Fora desta VPS, onde nao existe o runtime Jarbas, as units em `systemd/`
+Fora da Stage, onde nao existe o runtime Jarbas, as units em `systemd/`
 rodam o mesmo watchdog por timer, sem o aviso no Telegram:
 
 ```
