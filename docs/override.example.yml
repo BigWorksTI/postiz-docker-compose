@@ -13,7 +13,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.postiz
-    pull_policy: build
+    pull_policy: missing
     volumes:
       - ./scripts/patch-landing-home.sh:/patch-landing-home.sh:ro
       - ./landing:/landing-src:ro
