@@ -13,3 +13,19 @@ jobs:
       - uses: actions/checkout@v4
       - name: validate
         run: ./scripts/validate.sh
+
+  trivy:
+    # Runner descartável do GitHub (não o self-hosted da Stage): roda em PR sem
+    # dar acesso ao host. O gate cobre pacotes do SO (apt), que o Dockerfile
+    # corrige; CVEs de npm/go/cargo vêm da imagem oficial e ficam no relatório.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: build postiz-app
+        run: docker build -f Dockerfile.postiz --pull -t postiz-app:ci .
+      - name: trivy (reprova com CRITICAL de SO que tenha correção)
+        run: |
+          docker save postiz-app:ci -o "$RUNNER_TEMP/postiz-app.tar"
+          docker run --rm -v "$RUNNER_TEMP:/img:ro" aquasec/trivy:0.58.1 image \
+            --input /img/postiz-app.tar --severity CRITICAL --ignore-unfixed \
+            --pkg-types os --exit-code 1
