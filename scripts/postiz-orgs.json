@@ -1,0 +1,10 @@
+{
+  "_comentario": "Organizacoes do Postiz e o id da credencial no Vault com a apiKey de cada uma (divisao de 2026-10-30). Nenhum segredo aqui.",
+  "mcp_url": "https://social.bigworks.com.br/api/mcp",
+  "orgs": {
+    "prompt-do-dia": {"nome": "Prompt do dia", "vault_id": 125},
+    "promptbi": {"nome": "PromptBI", "vault_id": 249},
+    "avalie-ai": {"nome": "Avalie Aí", "vault_id": 250},
+    "arthur": {"nome": "Arthur Lehdermann", "vault_id": 251}
+  }
+}
