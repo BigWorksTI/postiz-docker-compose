@@ -6,6 +6,7 @@
     "promptbi": {"nome": "PromptBI", "vault_id": 249},
     "avalie-ai": {"nome": "Avalie Aí", "vault_id": 250},
     "arthur": {"nome": "Arthur Lehdermann", "vault_id": 251},
-    "meu-garcom": {"nome": "Meu Garçom", "vault_id": 304}
+    "meu-garcom": {"nome": "Meu Garçom", "vault_id": 304},
+    "minha-fila": {"nome": "Minha Fila", "vault_id": 305}
   }
 }
