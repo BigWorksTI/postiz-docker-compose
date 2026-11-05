@@ -5,6 +5,7 @@
     "prompt-do-dia": {"nome": "Prompt do dia", "vault_id": 125},
     "promptbi": {"nome": "PromptBI", "vault_id": 249},
     "avalie-ai": {"nome": "Avalie Aí", "vault_id": 250},
-    "arthur": {"nome": "Arthur Lehdermann", "vault_id": 251}
+    "arthur": {"nome": "Arthur Lehdermann", "vault_id": 251},
+    "meu-garcom": {"nome": "Meu Garçom", "vault_id": 304}
   }
 }
