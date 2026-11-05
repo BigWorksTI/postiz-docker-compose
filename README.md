@@ -76,7 +76,7 @@ a marca Postiz nao aparece na interface. Os patches rodam na subida do container
 encadeados no `command` do `docker-compose.override.yml` (arquivo fora do git):
 
 ```
-/patch-landing-home.sh && /patch-facebook-oauth.sh && /patch-legal-pages.sh && /patch-branding.sh && node /patch-whitelabel.js && exec docker-entrypoint.sh sh -c 'nginx && pnpm run pm2'
+/patch-landing-home.sh && /patch-facebook-oauth.sh && /patch-legal-pages.sh && /patch-branding.sh && /patch-org-selector.sh && node /patch-whitelabel.js && exec docker-entrypoint.sh sh -c 'nginx && pnpm run pm2'
 ```
 
 - `scripts/patch-landing-home.sh`: home publica em `/` a partir de `landing/`; com cookie `auth`, `/` redireciona para `/launches`.
@@ -84,6 +84,8 @@ encadeados no `command` do `docker-compose.override.yml` (arquivo fora do git):
 - `scripts/patch-whitelabel.js`: remove o painel de marketing da tela de login e troca
   toda ocorrencia de "Postiz" nos bundles do Next.js por "BigWorks Social". Falha na
   subida se o painel de login nao for encontrado (sinal de que o bundle upstream mudou).
+- `scripts/patch-org-selector.sh`: o menu de organizações (canto superior direito) ganha `z-[100]`
+  para ficar acima do cabeçalho do calendário (`z-[20]`); sem isso o último item some atrás dele.
 - `scripts/patch-legal-pages.sh`: publica `legal/terms-of-service.html` e `legal/privacy-policy.html`;
   `/termos-uso` e `/politica-privacidade` redirecionam para as paginas legais.
 
