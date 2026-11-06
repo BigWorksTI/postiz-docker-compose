@@ -8,7 +8,9 @@ on:
 
 jobs:
   validate:
-    runs-on: [self-hosted, stage-vps]
+    # Repo público: PR de fork não pode rodar no runner da Stage (root no host).
+    # O validate só precisa de docker compose, que o runner do GitHub tem.
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: validate
